@@ -5,7 +5,9 @@ This is a slack bot that enables the users in the same workspace to interact ano
 <h2>User Guide</h2>
 Following are the keywords:
 exit  = deletes all the data of you on the system and closes the conversation
+
 rec:  = Initializes or changes the person we are having a conversation with
+
         To start a conversation with someone anonymously, specify the full name of the person with the following format:               rec:Bob Dylan or rec:Michael Jordan Please note that the full name section is case sensitive
 help  = Prints the instructions of how to use the bot
 
