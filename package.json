@@ -1,0 +1,23 @@
+{
+  "name": "anonbot",
+  "version": "1.0.0",
+  "description": "A bot that makes sending anonymous messages through Slack possible",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dogukanavci/AnonBOT.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dogukanavci/AnonBOT/issues"
+  },
+  "homepage": "https://github.com/dogukanavci/AnonBOT#readme",
+  "dependencies": {
+    "@slack/client": "^4.10.0",
+    "xmlhttprequest": "^1.8.0"
+  }
+}

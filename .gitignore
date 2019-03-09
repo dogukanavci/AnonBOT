@@ -1,0 +1,8 @@
+node_modules
+build
+.config
+config.js
+/config.js
+npm-debug.log
+.env
+.DS_Store
