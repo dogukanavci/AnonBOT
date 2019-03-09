@@ -8,7 +8,8 @@ exit  = deletes all the data of you on the system and closes the conversation
 
 rec:  = Initializes or changes the person we are having a conversation with
 
-        To start a conversation with someone anonymously, specify the full name of the person with the following format:               rec:Bob Dylan or rec:Michael Jordan Please note that the full name section is case sensitive
+To start a conversation with someone anonymously, specify the full name of the person with the following format:               rec:Bob Dylan or rec:Michael Jordan Please note that the full name section is case sensitive
+        
 help  = Prints the instructions of how to use the bot
 
 Let us send a message to Willy Wonka(assuming he is in our Slack Workspace):
