@@ -17,21 +17,22 @@ var types=[""];
 
 var intro="Hello, I am anonbot. You can send anonymous messages to other users in this channel through me!";
 var ctr = 1;
-rtm.on('message', (message) => {
+rtm.on('message', (message) => {//constantly listen for new messages
   console.log(`(channel:${message.channel}) ${message.user} says: ${message.text}`);
-  var [index,firstTime] = getIndex(message.channel);
-  if (firstTime) {
+  var [index,firstTime] = getIndex(message.channel);//get the info of this conversation
+  if (firstTime) {//if this is the first time, greet them
     respond(rtm,intro,message.channel);
   }
   senders[index] = message.user;
   var response = Purpose(message.text,message.channel,index);
-  if (response) {
+  if (response) {//respond with what the converdation handler said
     respond(rtm,response,message.channel);
   }
 });
-function Purpose(message,chan,index){
+
+function Purpose(message,chan,index){//conversation handler that captures the purpose of the user, returns a proper response
   if (message.toLowerCase() == "help") {
-    return "To exit from current conversation type exit.\nTo start a conversation with someone anonymously, specify the full name of the person with the following format: rec:Bob Dylan or rec:Michael Jordan\n Please note that the full name section is case sensitive";
+    return "To exit from current conversation type exit.\nTo start a conversation with someone anonymously, specify the full name of the person with the following format: rec:Bob Dylan or rec:Michael Jordan\n Please note that the full name section is case sensitive\nTo see the current receiver type summary";
   }
   else if (message.toLowerCase() == "exit"){
     channels.splice(index,1);
@@ -57,7 +58,7 @@ function Purpose(message,chan,index){
       else{return "You did not specify a receiver yet";}
     }
   }
-  else if (message.toLowerCase().substr(0,4) == "rec:") {
+  else if (message.toLowerCase().substr(0,4) == "rec:") {//handles the receiver
     var rec = message.substr(4);
     if (rec.includes("anon")) {
       var id = getId(rec);
@@ -82,11 +83,11 @@ function Purpose(message,chan,index){
     if (typeof receivers[index] !== 'undefined' && receivers[index] != "") {
       if (types[index] == 1) {
         message = senders[index]+" : "+message;
-        sendMessageId(receivers[index],message,chan);
+        sendMessageId(receivers[index],message,chan);//send message to anon
         return 0;
       } else if(types[index] == 0) {
         message = anons[index]+" : "+ message;
-        sendMessage(receivers[index],message,chan);
+        sendMessage(receivers[index],message,chan);//send message as anon
         return 0;
       }
     }
@@ -96,7 +97,7 @@ function Purpose(message,chan,index){
   }
 }
 
-function getIndex(channel){
+function getIndex(channel){//find the index of the channel, create one if it does not exist
   var index = -1;
   var firstTime = true;
   for (var i = 0; i < channels.length; i++) {
@@ -105,7 +106,7 @@ function getIndex(channel){
       firstTime = false;
     }
   }
-  if (index == -1) {
+  if (index == -1) {//this channel does not exist, let us create a new one
     channels.push(channel);
     receivers.push("");
     senders.push("");
@@ -115,7 +116,8 @@ function getIndex(channel){
   }
   return [index,firstTime];
 }
-function getId(anon){
+
+function getId(anon){//get the id of the anonymous parameter
   var id = -1;
   for (var i = 0; i < anons.length; i++) {
     if(anons[i] == anon){
@@ -124,14 +126,16 @@ function getId(anon){
   }
   return id;
 }
-function respond(rtm,response,channel){
+
+function respond(rtm,response,channel){//send a message to the given channel
   rtm.sendMessage(response, channel)
   .then((res) => {
     console.log('Message sent: ', res.ts);
   })
   .catch(console.error);
 }
-function get(url,name,message, callback) {
+
+function get(url,name,message, callback) {//get the entire database corresponding to the slack workspace
     var xhr = new XMLHttpRequest();
     xhr.open("GET", url);
     xhr.onreadystatechange = function () {
@@ -145,41 +149,44 @@ function get(url,name,message, callback) {
     xhr.send();
 }
 
-var sendMessageId = function(id,message,channel){
-  openChannel(id,message,
+var sendMessageId = function(id,message,chan){//chan is the channel of the sender
+  openChannel(id,message,//open a new channel with the given id
     function(message){
+      var channel;
       try{
         channel=JSON.parse(this.responseText).channel.id;
       }
-      catch(er){
-        respond(rtm,"There is not an anon with those credentials. To get help, please type help",channel);
+      catch(er){//if there is an error respond back to the sender
+        respond(rtm,"There is not an anon with those credentials. To get help, please type help",chan);
         return "";
       }
-      rtm.sendMessage(message, channel)
+      rtm.sendMessage(message, channel)//actually sending the message
         .then((res) => {
           console.log('Message sent: ', res.ts);
         })
         .catch(console.error);
     });
 }
-var sendMessage = function(name,message,channel){
+
+var sendMessage = function(name,message,chan){//chan is the channel of the sender
    get(url,name,message,
       function (name, message) {
           var response  = JSON.parse(this.responseText);
-          let i = findIdByName(name,response);
+          let i = findIdByName(name,response);//get the id of the name
           openChannel(i,message,
-            function(message){
+            function(message){//open a new channel to the found id
+              var channel;
               try{
                 channel=JSON.parse(this.responseText).channel.id;
               }
               catch(er){
-                respond(rtm,"There is noone with the name " +name+ ". Please correct the name of the receiver. To get help, you can type help",channel);
+                respond(rtm,"There is noone with the name " +name+ ". Please correct the name of the receiver. To get help, you can type help",chan);
                 return "";
               }
-              if (message=="") {
-                respond(rtm,"You are now talking to " +name,channel);
+              if (message=="") {//control message to check if the indeed the name is found
+                respond(rtm,"You are now talking to " +name,chan);
               }
-              rtm.sendMessage(message, channel)
+              rtm.sendMessage(message, channel)//actually sending the message
                 .then((res) => {
                   console.log('Message sent: ', res.ts);
                 })
@@ -189,16 +196,17 @@ var sendMessage = function(name,message,channel){
       }
   );
 }
-var findIdByName = function(name,data){
+
+var findIdByName = function(name,data){//return the id of the corresponding name
   for (let i = 0; i < data.members.length; i++) {
-    if (data.members[i].real_name == name) {
-      return data.members[i].id;
+    if (data.members[i].real_name == name) {//name matches to the provided name
+      return data.members[i].id;//return the id of this column
     }
   }
     return 0;
 }
 
-var openChannel = function(id, message,callback){
+var openChannel = function(id, message,callback){//opens up a channel to the given id
   var xml = new XMLHttpRequest();
   xml.onreadystatechange = function(){
     if(this.readyState == 4 && this.status == 200){
